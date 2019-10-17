@@ -1,0 +1,21 @@
+{
+  "path": "/dashboard/stats",
+  "port": 5050,
+  "queries": [
+    {
+      "params": {"type": "1"},
+      "response": {
+        "someKey": "someValue"
+      }
+    },
+    {
+      "params": {"type": "2"},
+      "response": {
+        "someKey": "someOtherValue"
+      }
+    }
+  ],
+  "response": {
+    "default": "message"
+  }
+}

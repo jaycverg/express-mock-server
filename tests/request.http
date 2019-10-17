@@ -1,0 +1,13 @@
+GET http://localhost:5050/dashboard/stats?type=1
+
+
+###
+GET http://localhost:5050/dashboard/stats?type=2
+
+
+###
+GET http://localhost:5050/dashboard/stats
+
+
+###
+GET http://localhost:9090/api2

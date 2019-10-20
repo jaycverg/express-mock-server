@@ -4,15 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "nodemon index.js"
   },
-  "author": "Nikolai Pesochenskii",
+  "author": "jaycverg",
   "license": "ISC",
   "dependencies": {
     "ansi-colors": "1.1.0",
     "express": "4.16.3",
     "fancy-log": "1.3.2",
     "glob": "7.1.2",
+    "nodemon": "^1.19.4",
     "yargs": "4.8.1"
   }
 }

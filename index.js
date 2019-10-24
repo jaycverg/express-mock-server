@@ -3,50 +3,53 @@
 const log = require('fancy-log');
 const color = require('ansi-colors');
 const express = require('express');
+const cors = require('cors');
 const fs = require('fs');
 const glob = require('glob');
 
 glob('routes/*.json', {absolute: true}, (err, files) => {
 
-	const portApis = {};
+    const portApis = files.reduce((groups, path) => {
+        try {
+            const json = JSON.parse(fs.readFileSync(path, 'utf8'));
+            const group = groups[json.port] || [];
+            group.push(json);
+            groups[json.port] = group;
+        } catch(e) {}
+        return groups;
+    }, {});
 
-	files.forEach(path => {
-		try {
-			const json = JSON.parse(fs.readFileSync(path, 'utf8'));
-			const portGroup = portApis[json.port] || [];
-			portGroup.push(json);
-			portApis[json.port] = portGroup;
-		} catch(e) {}
-	});
 
-	const portEntries = Object.entries(portApis);
-	for (const [port, routes] of portEntries) {
-		const app = express();
+    const portEntries = Object.entries(portApis);
+    for (const [port, routes] of portEntries) {
+        const app = express();
 
-		log.info(color.grey(`configuring app at ${port}`));
-		routes.forEach(route => {
-			log.info(color.grey(`- ${route.path}`));
+        app.use(cors());
 
-			// Accepts both GET and POST requests
-			app.all(route.path, (req, res) => {
-				res.set('Content-Type', 'application/json');
+        log.info(color.grey(`configuring app at ${port}`));
+        routes.forEach(route => {
+            log.info(color.grey(`- ${route.path}`));
 
-				const queries = route.queries || [];
-				queries: for (const {params, response} of queries) {
-					for (const key in params) {
-						if (params[key] !== req.query[key]) {
-							continue queries;
-						}
-					}
+            // Accepts both GET and POST requests
+            app.all(route.path, (req, res) => {
+                res.set('Content-Type', 'application/json');
 
-					return res.send(JSON.stringify(response));
-				}
+                const queries = route.queries || [];
+                queries: for (const {params, response} of queries) {
+                    for (const key in params) {
+                        if (params[key] !== req.query[key]) {
+                            continue queries;
+                        }
+                    }
 
-				return res.send(JSON.stringify(route.response));
-			});
-		});
+                    return res.send(JSON.stringify(response));
+                }
 
-		log.info(`Starting server at ${port}\n`);
-		app.listen(port);
-	}
+                return res.send(JSON.stringify(route.response));
+            });
+        });
+
+        log.info(`Starting server at ${port}\n`);
+        app.listen(port);
+    }
 });
